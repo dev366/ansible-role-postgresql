@@ -1,0 +1,23 @@
+galaxy_info:
+  author: Igor Mikhaylov <igor@dev366.com>
+  description: Install and configure PostgreSQL, create user and database.
+  company: dev366.com
+
+  issue_tracker_url: https://github.com/dev366/ansible-role-postresql/issues
+
+  license: BSD
+
+  min_ansible_version: 1.2
+
+  platforms:
+  - name: Ubuntu
+    versions:
+      - trusty
+
+  galaxy_tags:
+    - postgresql
+    - database
+    - ubuntu
+    - installer
+
+dependencies: []

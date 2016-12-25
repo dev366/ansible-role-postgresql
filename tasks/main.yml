@@ -1,0 +1,66 @@
+---
+- name: apt update
+  apt: update_cache=true cache_valid_time=86400
+
+- name: apt install apt-transport-https (for apt_repository to add https repos)
+  apt: pkg=apt-transport-https state=installed
+
+- name: Add PostgreSQL repo
+  apt_repository: repo='deb https://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main' state=present
+
+- name: Add PostgreSQL repo key
+  apt_key: url=https://postgresql.org/media/keys/ACCC4CF8.asc state=present
+  register: pg_key
+
+- name: apt update (required after PostgreSQL repo key was inserted)
+  apt: update_cache=true
+  when: pg_key.changed
+
+- name: apt install postgresql-{{ version }}
+  apt: pkg=postgresql-{{ version }} state=installed
+
+- name: apt install python-psycopg2 (for Ansible postgresql_db module)
+  apt: pkg=python-psycopg2 state=installed
+
+#  - name: Ensure the PostgreSQL service is running
+#    service: name=postgresql state=started enabled=yes
+
+- name: Allow access to PostgreSQL
+  copy:
+    dest: /etc/postgresql/{{ version }}/main/pg_hba.conf
+    content: |
+      local   all   postgres   peer
+      local   all   all        peer
+      local   all   all        trust
+      host    all   all        ::1/128 trust
+      host    all   all        0.0.0.0/0   md5
+  notify: PostgreSQL - restart
+  when: current_env != "prod"
+
+- name: Allow PostgreSQL to listen on all addresses
+  lineinfile: dest=/etc/postgresql/{{ version }}/main/postgresql.conf
+              regexp="^listen_addresses"
+              line="listen_addresses = '*'" state=present
+  notify: PostgreSQL - restart
+  when: current_env != "prod"
+
+- meta: flush_handlers
+
+- name: Create database
+  become_user: postgres
+  postgresql_db: name={{ database }} encoding='UTF-8' login_user=postgres state=present
+
+- name: Create PostgreSQL user "{{ username }}"
+  become_user: postgres
+  postgresql_user: name={{ username }} password={{ password }} db={{ database }} priv=ALL state=present
+
+- block:
+  - name: Save PostgreSQL password for {{ username }} to allow running commands without password
+    lineinfile: dest=/home/vagrant/.pgpass
+                regexp="^localhost:{{ port }}:{{ database }}"
+                line="localhost:{{ port }}:{{ database }}:{{ username }}:{{ password }}"
+                create=yes
+                state=present
+  - name: Set /home/vagrant/.pgpass file premissions
+    file: path=/home/vagrant/.pgpass owner=vagrant group=vagrant mode=0600 state=file
+  when: current_env != "prod"
