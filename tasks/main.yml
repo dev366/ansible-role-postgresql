@@ -1,33 +1,22 @@
 ---
-- name: apt update
-  apt: update_cache=true cache_valid_time=86400
+- name: Set distro-specific variables
+  include_vars: "{{ ansible_distribution | lower }}.yml"
 
-- name: apt install apt-transport-https (for apt_repository to add https repos)
-  apt: pkg=apt-transport-https state=installed
+- include: postgresql-install-{{ ansible_distribution | lower }}.yml
 
-- name: Add PostgreSQL repo
-  apt_repository: repo='deb https://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main' state=present
+- name: install python-psycopg2 (for Ansible postgresql_db module)
+  package: name=python-psycopg2 state=installed
 
-- name: Add PostgreSQL repo key
-  apt_key: url=https://postgresql.org/media/keys/ACCC4CF8.asc state=present
-  register: pg_key
-
-- name: apt update (required after PostgreSQL repo key was inserted)
-  apt: update_cache=true
-  when: pg_key.changed
-
-- name: apt install postgresql-{{ version }}
-  apt: pkg=postgresql-{{ version }} state=installed
-
-- name: apt install python-psycopg2 (for Ansible postgresql_db module)
-  apt: pkg=python-psycopg2 state=installed
+  # In some OS services are not enabled by default.
+- name: run PostgreSQL service on system start
+  service: name="{{ postgresql_service_name }}" enabled=yes
 
 #  - name: Ensure the PostgreSQL service is running
 #    service: name=postgresql state=started enabled=yes
 
 - name: Allow access to PostgreSQL
   copy:
-    dest: /etc/postgresql/{{ version }}/main/pg_hba.conf
+    dest: "{{ postgresql_data_dir }}/pg_hba.conf"
     content: |
       local   all   postgres   peer
       local   all   all        peer
@@ -38,7 +27,7 @@
   when: current_env != "prod"
 
 - name: Allow PostgreSQL to listen on all addresses
-  lineinfile: dest=/etc/postgresql/{{ version }}/main/postgresql.conf
+  lineinfile: dest="{{ postgresql_data_dir }}/postgresql.conf"
               regexp="^listen_addresses"
               line="listen_addresses = '*'" state=present
   notify: PostgreSQL - restart

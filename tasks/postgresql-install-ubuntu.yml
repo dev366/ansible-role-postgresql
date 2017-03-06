@@ -1,0 +1,19 @@
+- name: apt update
+  apt: update_cache=true cache_valid_time=86400
+
+- name: apt install apt-transport-https (for apt_repository to add https repos)
+  apt: name=apt-transport-https state=installed
+
+- name: Add PostgreSQL repo
+  apt_repository: repo='deb https://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main' state=present
+
+- name: Add PostgreSQL repo key
+  apt_key: url=https://postgresql.org/media/keys/ACCC4CF8.asc state=present
+  register: pg_key
+
+- name: apt update (required after PostgreSQL repo key was inserted)
+  apt: update_cache=true
+  when: pg_key.changed
+
+- name: apt install "{{ postgresql_server_pkg_name }}"
+  apt: name="{{ postgresql_server_pkg_name }}" state=installed

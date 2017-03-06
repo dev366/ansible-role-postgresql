@@ -1,0 +1,3 @@
+postgresql_data_dir: /etc/postgresql/{{ version }}/main
+postgresql_service_name: postgresql
+postgresql_server_pkg_name: postgresql-{{ version }}

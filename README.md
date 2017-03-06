@@ -2,8 +2,8 @@ ansible-role-postgresql
 =======================
 
 Ansible role to install and configure PostgreSQL, create user and database.
-Tested on Ubuntu Trusty.
-No usage of 'shell:' only ansible commands.
+Tested on Ubuntu Trusty and CentOS 7.
+(Almost) no usage of 'shell:', only ansible commands.
 
 Requirements
 ------------
