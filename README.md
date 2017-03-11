@@ -7,7 +7,7 @@ Tested on Ubuntu Trusty and CentOS 7.
 
 Requirements
 ------------
-None.
+Role requires fact gathering enabled in the main playbook (`gather_facts: yes`).
 
 Role Variables
 --------------
