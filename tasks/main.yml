@@ -43,6 +43,11 @@
   become_user: postgres
   postgresql_user: name={{ username }} password={{ password }} db={{ database }} priv=ALL state=present
 
+# We suppose that vagrant user exists if /home/vagrant dir exists.
+- name: Check if vagrant user exists
+  stat: path=/home/vagrant
+  register: vagrant_user_home
+
 - block:
   - name: Save PostgreSQL password for {{ username }} to allow running commands without password
     lineinfile: dest=/home/vagrant/.pgpass
@@ -52,4 +57,4 @@
                 state=present
   - name: Set /home/vagrant/.pgpass file premissions
     file: path=/home/vagrant/.pgpass owner=vagrant group=vagrant mode=0600 state=file
-  when: current_env != "prod"
+  when: current_env != "prod" and vagrant_user_home.stat.stat.isdir is defined and vagrant_user_home.stat.stat.isdir
