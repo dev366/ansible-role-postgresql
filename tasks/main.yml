@@ -33,6 +33,10 @@
   notify: PostgreSQL - restart
   when: current_env != "prod"
 
+- name: Open firewall on PostgreSQL port
+  firewalld: service="{{ postgresql_service_name }}" permanent=true immediate=true state=enabled
+  when: current_env != "prod"
+
 - meta: flush_handlers
 
 - name: Create database
