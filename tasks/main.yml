@@ -4,11 +4,11 @@
 
 - include: postgresql-install-{{ ansible_distribution | lower }}.yml
 
-- name: install python-psycopg2 (for Ansible postgresql_db module)
+- name: Install python-psycopg2 (for Ansible postgresql_db module)
   package: name=python-psycopg2 state=installed
 
   # In some OS services are not enabled by default.
-- name: run PostgreSQL service on system start
+- name: Run PostgreSQL service on system start
   service: name="{{ postgresql_service_name }}" enabled=yes
 
 #  - name: Ensure the PostgreSQL service is running
