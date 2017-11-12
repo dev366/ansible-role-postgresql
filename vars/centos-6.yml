@@ -1,0 +1,6 @@
+el_version: 6
+postgresql_pkg_minor_version: 3
+postgresql_data_dir: /var/lib/pgsql/{{ version }}/data
+postgresql_service_name: postgresql-{{ version }}
+postgresql_server_pkg_name: postgresql{{ version | replace('.', '') }}-server
+postgresql_repo: http://yum.postgresql.org/{{ version }}/redhat/rhel-{{ el_version }}-x86_64/pgdg-centos{{ version | replace('.', '') }}-{{ version }}-{{ postgresql_pkg_minor_version }}.noarch.rpm

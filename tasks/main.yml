@@ -1,8 +1,10 @@
 ---
-- name: Set distro-specific variables
-  include_vars: "{{ ansible_distribution | lower }}.yml"
+- debug: msg="Including variables from <{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0] | lower }}.yml> file."
 
-- include: postgresql-install-{{ ansible_distribution | lower }}.yml
+- name: Set distro-specific variables
+  include_vars: "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0] | lower }}.yml"
+
+- include: postgresql-install-{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0] | lower }}.yml
 
 - name: Install python-psycopg2 (for Ansible postgresql_db module)
   package: name=python-psycopg2 state=installed
