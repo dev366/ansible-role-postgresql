@@ -39,13 +39,13 @@
 
 - meta: flush_handlers
 
-- name: Create database
-  become_user: postgres
-  postgresql_db: name={{ database }} encoding='UTF-8' login_user=postgres state=present
-
 - name: Create PostgreSQL user "{{ username }}"
   become_user: postgres
-  postgresql_user: name={{ username }} password={{ password }} db={{ database }} priv=ALL state=present
+  postgresql_user: name={{ username }} password={{ password }} state=present
+
+- name: Create database
+  become_user: postgres
+  postgresql_db: name={{ database }} encoding='UTF-8' login_user=postgres state=present owner={{ username }}
 
 # We suppose that vagrant user exists if /home/vagrant dir exists.
 - name: Check if vagrant user exists
