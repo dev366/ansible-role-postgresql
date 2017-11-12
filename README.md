@@ -21,7 +21,7 @@ Required variables:
 Optional variables:
 - version, PostgreSQL version to install (default is 9.4)
 - host, host of PostgreSQL, will be used in configuration files (default is 127.0.0.1)
-- port, port of PostgreSQL, will be used in configuration files (default is 5432)
+- listen_port, port of PostgreSQL, will be used in configuration files (default is 5432)
 
 Dependencies
 ------------
