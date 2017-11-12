@@ -13,9 +13,6 @@
 - name: Run PostgreSQL service on system start
   service: name="{{ postgresql_service_name }}" enabled=yes
 
-#  - name: Ensure the PostgreSQL service is running
-#    service: name=postgresql state=started enabled=yes
-
 - name: Allow access to PostgreSQL
   copy:
     dest: "{{ postgresql_data_dir }}/pg_hba.conf"
@@ -40,6 +37,11 @@
   when: current_env != "prod"
 
 - meta: flush_handlers
+
+  # Restart handlers will not fire in case we configuring prod environment. 
+  # So we need to start the service separately.
+- name: Ensure PostgreSQL service is running
+  service: name="{{ postgresql_service_name }}" state=started
 
 - name: Create PostgreSQL user "{{ username }}"
   become_user: postgres
